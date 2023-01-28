@@ -1,0 +1,35 @@
+{
+    "param_minutes" : "Minutes",
+    "param_hours" : "Hours",
+    "param_day_of_month" : "Day Of Month",
+    "param_month" : "Month",
+    "param_day_of_week" : "Day of Week",
+    "every_minute" : "Every Minute",
+    "every_n_minutes" : "Every n Minutes",
+    "selected_minutes" : "Selected Minutes",
+    "every_hour" : "Every Hour",
+    "every_n_hours" : "Every n Hours",
+    "selected_hours" : "Selected Hours",
+    "every_day" : "Every Day",
+    "selected_days" : "Selected Days",
+    "every_month" : "Every Month",
+    "selected_months" : "Selected Months",
+    "every_day_of_week" : "Every Day of Week",
+    "selected_day_of_week" : "Selected Day of Week",
+
+    "cron_expression_caption_select_example" : "Sample cron",
+    "cron_expression_every_minute" : "Every minute",
+    "cron_expression_every_10_minutes" : "Every 10 minutes",
+    "cron_expression_every_hour" : "Every hour",
+    "cron_expression_twice_a_day" : "Twice a day",
+    "cron_expression_every_day" : "Every day",
+    "cron_expression_every_weekday" : "Every Weekday",
+    "cron_expression_every_weekend" : "Every Weekend",
+    "cron_expression_every_week" : "Every week",
+    "cron_expression_every_month" : "Every month",
+    "cron_expression_every_quarter" : "Every quarter",
+    "helloWorld": "Hello World!",
+    "@helloWorld": {
+      "description": "The conventional newborn programmer greeting"
+    }
+}

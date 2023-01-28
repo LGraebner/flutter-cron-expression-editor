@@ -1,0 +1,40 @@
+import 'package:flutter/material.dart';
+
+double CRON_MINUTES_MIN = 0;
+double CRON_MINUTES_MAX = 59;
+double CRON_MINUTES_EVERY_N_MIN = 1;
+double CRON_MINUTES_EVERY_N_MAX = 59;
+
+double CRON_HOURS_MIN = 0;
+double CRON_HOURS_MAX = 59;
+double CRON_HOURS_EVERY_N_MIN = 1;
+double CRON_HOURS_EVERY_N_MAX = 59;
+// int CRON_MINUTES_SLIDER_DIVISIONS = 59;
+
+String INITIAL_CRON_EXPRESSION = '*/5 * * * *';
+String CRON_EXPRESSION_EVERY_MINUTE = '* * * * *';
+String CRON_EXPRESSION_EVERY_10_MINUTES = '*/10 * * * *';
+String CRON_EXPRESSION_EVERY_HOUR = '0 * * * *';
+String CRON_EXPRESSION_TWICE_A_DAY = '0 9,21 * * *';
+String CRON_EXPRESSION_EVERY_DAY = '0 9 * * *';
+String CRON_EXPRESSION_EVERY_WEEKDAY = '0 9 * * 1-5';
+String CRON_EXPRESSION_EVERY_WEEKEND = '0 9 * * 6,0';
+String CRON_EXPRESSION_EVERY_WEEK = '0 9 * * MON';
+String CRON_EXPRESSION_EVERY_MONTH = '0 9 1 * *';
+String CRON_EXPRESSION_EVERY_QUARTER = '0 9 1 */3 *';
+
+
+Color COLOR_MINUTES = Colors.blue;
+Color COLOR_HOURS = Colors.red;
+Color COLOR_DAY_OF_MONTH = Colors.orange;
+Color COLOR_MONTH = Colors.green;
+Color COLOR_DAY_OF_WEEK = Colors.brown;
+
+Color COLOR_GENERAL = Colors.blueAccent;
+
+Color COLOR_PARAM_MODE_ACTIVE_BUTTON_BACKGROUND = Colors.blueAccent;
+Color COLOR_PARAM_MODE_ACTIVE_BUTTON_FOREGROUND = Colors.white;
+Color COLOR_PARAM_MODE_ACTIVE_GENERAL = Colors.blueAccent;
+Color COLOR_PARAM_MODE_INACTIVE_BUTTON_BACKGROUND = Colors.white;
+Color COLOR_PARAM_MODE_INACTIVE_BUTTON_FOREGROUND = Colors.black54;
+Color COLOR_PARAM_MODE_INACTIVE_GENERAL = Colors.grey;

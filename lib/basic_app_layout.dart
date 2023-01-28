@@ -28,7 +28,7 @@ class _BasicAppLayoutState extends State<BasicAppLayout> {
                 const SizedBox(width: 10),
                 const Expanded(
                     child: TextField(
-                  decoration: InputDecoration(
+                      decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Cron Expression'),
                 )),
