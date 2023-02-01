@@ -71,15 +71,15 @@ List<bool> getSelectedHoursValues(
     selectedHours.add(false);
   }
 
-  if (cronMinutesMode == CronMinutesMode.SELECTED_MINUTES) {
+  if (cronHoursMode == CronHoursMode.SELECTED_HOURS) {
     List<int> minutes =
-    cronMinutesExpression.split(',').map((e) => int.parse(e)).toList();
+    cronHoursExpression.split(',').map((e) => int.parse(e)).toList();
     for (var i in minutes) {
-      selectedMinutes[i] = true;
+      selectedHours[i] = true;
     }
   }
 
-  return selectedMinutes;
+  return selectedHours;
 }
 
 /* General */

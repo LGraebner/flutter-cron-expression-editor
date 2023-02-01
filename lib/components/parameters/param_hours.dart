@@ -1,4 +1,5 @@
 import 'package:cron_expression_editor/constants.dart';
+import 'package:cron_expression_editor/cron/cron_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,17 +32,17 @@ class _ParamHoursState extends ConsumerState<ParamHours> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(cronExpressionProvider) as CronExpressionModel;
-    _cronMinutesExpression = state.cronExpression.split(" ")[0];
-    _cronMinutesMode = getCronMinutesMode(_cronMinutesExpression);
-    _n_minute_value =
-        getEveryNMinutesValue(_cronMinutesMode, _cronMinutesExpression);
-    _selected_minutes =
-        getSelectedMinutesValues(_cronMinutesMode, _cronMinutesExpression);
+    _cronHoursExpression = state.cronExpression.split(" ")[1];
+    _cronHoursMode = getCronHoursMode(_cronHoursExpression);
+    _n_hour_value =
+        getEveryNHoursValue(_cronHoursMode, _cronHoursExpression);
+    _selected_hours =
+        getSelectedHoursValues(_cronHoursMode, _cronHoursExpression);
 
-    return createMinutesSelector(context, state, ref);
+    return createHoursSelector(context, state, ref);
   }
 
-  Widget createMinutesSelector(
+  Widget createHoursSelector(
       BuildContext context, CronExpressionModel state, WidgetRef ref) {
     var t = AppLocalizations.of(context);
 
@@ -52,7 +53,7 @@ class _ParamHoursState extends ConsumerState<ParamHours> {
             const SizedBox(height: 10),
             Row(
               children: [
-                createSubCronExpressionLabel('${state.minutes}', COLOR_MINUTES)
+                createSubCronExpressionLabel('${state.hours}', COLOR_HOURS)
               ],
             ),
             SizedBox(
@@ -61,22 +62,22 @@ class _ParamHoursState extends ConsumerState<ParamHours> {
             TabBar(
               labelColor: Colors.black,
               tabs: [
-                Tab(text: t!.every_minute),
-                Tab(text: t!.every_n_minutes),
-                Tab(text: t!.selected_minutes),
+                Tab(text: t!.every_hour),
+                Tab(text: t!.every_n_hours),
+                Tab(text: t!.selected_hours),
               ],
             ),
             Expanded(
                 child: TabBarView(children: [
-                  createEveryMinuteContent(),
-                  createEveryNMinuteContent(),
-                  createSelectedMinutesContent()
+                  createEveryHourContent(),
+                  createEveryNHourContent(),
+                  createSelectedHoursContent()
                 ]))
           ],
         ));
   }
 
-  Widget createEveryMinuteContent() {
+  Widget createEveryHourContent() {
     var t = AppLocalizations.of(context);
     final notifier = ref.read(cronExpressionProvider.notifier);
 
@@ -90,15 +91,15 @@ class _ParamHoursState extends ConsumerState<ParamHours> {
                 Expanded(
                   child: OutlinedButton(
                     child: Text(
-                      t!.every_minute,
+                      t!.every_hour,
                       style: TextStyle(fontSize: 18.0),
                     ),
                     style: ButtonStyle(
                       backgroundColor:
                       MaterialStateProperty.resolveWith<Color?>(
                             (Set<MaterialState> states) {
-                          if (_cronMinutesMode ==
-                              CronMinutesMode.EVERY_MINUTE) {
+                          if (_cronHoursMode ==
+                              CronHoursMode.EVERY_HOUR) {
                             return COLOR_PARAM_MODE_ACTIVE_BUTTON_BACKGROUND;
                           }
                           return COLOR_PARAM_MODE_INACTIVE_BUTTON_BACKGROUND; // defer to the defaults
@@ -107,7 +108,7 @@ class _ParamHoursState extends ConsumerState<ParamHours> {
                       foregroundColor:
                       MaterialStateProperty.resolveWith<Color?>(
                               (Set<MaterialState> states) {
-                            if (_cronMinutesMode == CronMinutesMode.EVERY_MINUTE) {
+                            if (_cronHoursMode == CronHoursMode.EVERY_HOUR) {
                               return COLOR_PARAM_MODE_ACTIVE_BUTTON_FOREGROUND;
                             }
                             return COLOR_PARAM_MODE_INACTIVE_BUTTON_FOREGROUND; // defer to the defaults
@@ -115,9 +116,9 @@ class _ParamHoursState extends ConsumerState<ParamHours> {
                     ),
                     onPressed: () {
                       setState(() {
-                        _cronMinutesMode = CronMinutesMode.EVERY_MINUTE;
-                        calculateCronMinutesExpression();
-                        notifier.setMinutes(_cronMinutesExpression);
+                        _cronHoursMode = CronHoursMode.EVERY_HOUR;
+                        calculateCronHoursExpression();
+                        notifier.setHours(_cronHoursExpression);
                         resetOtherModes();
                       });
                     },
@@ -129,7 +130,7 @@ class _ParamHoursState extends ConsumerState<ParamHours> {
     );
   }
 
-  Widget createEveryNMinuteContent() {
+  Widget createEveryNHourContent() {
     final notifier = ref.read(cronExpressionProvider.notifier);
 
     return Column(children: [
@@ -139,27 +140,27 @@ class _ParamHoursState extends ConsumerState<ParamHours> {
         child: Row(children: [
           Expanded(
             child: Slider(
-              value: _n_minute_value,
-              min: CRON_MINUTES_SLIDER_MIN,
-              max: CRON_MINUTES_SLIDER_MAX,
-              divisions: CRON_MINUTES_SLIDER_DIVISIONS,
-              label: _n_minute_value.round().toString(),
+              value: _n_hour_value,
+              min: CRON_HOURS_EVERY_N_MIN,
+              max: CRON_HOURS_EVERY_N_MAX,
+              divisions: CRON_HOURS_EVERY_N_MAX.round(),
+              label: _n_hour_value.round().toString(),
               onChanged: (double value) {
                 setState(() {
-                  _n_minute_value = value;
-                  _cronMinutesMode = CronMinutesMode.EVERY_N_MINUTES;
-                  calculateCronMinutesExpression();
+                  _n_hour_value = value;
+                  _cronHoursMode = CronHoursMode.EVERY_N_HOURS;
+                  calculateCronHoursExpression();
                   resetOtherModes();
-                  notifier.setMinutes(_cronMinutesExpression);
+                  notifier.setHours(_cronHoursExpression);
                 });
               },
-              inactiveColor: _cronMinutesMode == CronMinutesMode.EVERY_N_MINUTES
+              inactiveColor: _cronHoursMode == CronHoursMode.EVERY_N_HOURS
                   ? COLOR_PARAM_MODE_ACTIVE_GENERAL
                   : COLOR_PARAM_MODE_INACTIVE_GENERAL,
-              activeColor: _cronMinutesMode == CronMinutesMode.EVERY_N_MINUTES
+              activeColor: _cronHoursMode == CronHoursMode.EVERY_N_HOURS
                   ? COLOR_PARAM_MODE_ACTIVE_GENERAL
                   : COLOR_PARAM_MODE_INACTIVE_GENERAL,
-              thumbColor: _cronMinutesMode == CronMinutesMode.EVERY_N_MINUTES
+              thumbColor: _cronHoursMode == CronHoursMode.EVERY_N_HOURS
                   ? COLOR_PARAM_MODE_ACTIVE_GENERAL
                   : COLOR_PARAM_MODE_INACTIVE_GENERAL,
             ),
@@ -169,7 +170,7 @@ class _ParamHoursState extends ConsumerState<ParamHours> {
     ]);
   }
 
-  Widget createSelectedMinutesContent() {
+  Widget createSelectedHoursContent() {
     final notifier = ref.read(cronExpressionProvider.notifier);
 
     return Column(children: [
@@ -181,74 +182,76 @@ class _ParamHoursState extends ConsumerState<ParamHours> {
               child: Wrap(
                 direction: Axis.vertical,
                 spacing: 10,
-                children: generateMinuteSelection(notifier),
+                children: generateHourSelection(notifier),
               )))
     ]);
   }
 
-  List<Widget> generateMinuteSelection(CronExpressionNotifier notifier) {
+  List<Widget> generateHourSelection(CronExpressionNotifier notifier) {
     List<Widget> rows = [];
 
-    for (var i = 0; i < 6; i++) {
-      List<Widget> minuteButtons = [];
-      for (var j = 0; j < 10; j++) {
-        int minuteValue = i * 10 + j;
-        OutlinedButton minuteButton = new OutlinedButton(
+    int hourCount = 0;
+    for (var i = 0; i < 3; i++) {
+      List<Widget> hourButtons = [];
+      for (var j = 0; j < 10 && hourCount <= CRON_HOURS_MAX; j++) {
+        int hourValue = i * 10 + j;
+        OutlinedButton hourButton = new OutlinedButton(
           child: Text(
-            minuteValue.toString(),
+            hourValue.toString(),
             style: TextStyle(fontSize: 16.0),
           ),
           style: ButtonStyle(
               backgroundColor: MaterialStateProperty.resolveWith<Color?>(
                     (Set<MaterialState> states) {
-                  if (_selected_minutes[minuteValue]) {
+                  if (_selected_hours[hourValue]) {
                     return COLOR_PARAM_MODE_ACTIVE_BUTTON_BACKGROUND;
                   }
                   return COLOR_PARAM_MODE_INACTIVE_BUTTON_BACKGROUND; // defer to the defaults
                 },
               ), foregroundColor: MaterialStateProperty.resolveWith<Color?>(
                   (Set<MaterialState> states) {
-                if (_selected_minutes[minuteValue]) {
+                if (_selected_hours[hourValue]) {
                   return COLOR_PARAM_MODE_ACTIVE_BUTTON_FOREGROUND;
                 }
                 return COLOR_PARAM_MODE_INACTIVE_BUTTON_FOREGROUND; // defer to the defaults
               })),
           onPressed: () {
             setState(() {
-              _selected_minutes[minuteValue] = !_selected_minutes[minuteValue];
-              _cronMinutesMode = CronMinutesMode.SELECTED_MINUTES;
-              calculateCronMinutesExpression();
-              notifier.setMinutes(_cronMinutesExpression);
+              _selected_hours[hourValue] = !_selected_hours[hourValue];
+              _cronHoursMode = CronHoursMode.SELECTED_HOURS;
+              calculateCronHoursExpression();
+              notifier.setHours(_cronHoursExpression);
 
               resetOtherModes();
             });
           },
         );
-        minuteButtons.add(minuteButton);
+        hourButtons.add(hourButton);
+        hourCount++;
       }
       rows.add(new Wrap(
           direction: Axis.horizontal,
           alignment: WrapAlignment.start,
           spacing: 10,
-          children: minuteButtons));
+          children: hourButtons));
     }
 
     return rows;
   }
 
-  void calculateCronMinutesExpression() {
-    switch (_cronMinutesMode) {
-      case CronMinutesMode.EVERY_MINUTE:
-        _cronMinutesExpression = '*';
+  void calculateCronHoursExpression() {
+    switch (_cronHoursMode) {
+      case CronHoursMode.EVERY_HOUR:
+        _cronHoursExpression = '*';
         break;
-      case CronMinutesMode.EVERY_N_MINUTES:
-        _cronMinutesExpression = '*/' + _n_minute_value.round().toString();
+      case CronHoursMode.EVERY_N_HOURS:
+        _cronHoursExpression = '*/' + _n_hour_value.round().toString();
         break;
-      case CronMinutesMode.SELECTED_MINUTES:
+      case CronHoursMode.SELECTED_HOURS:
         String tmpString = '';
         bool firstValue = true;
-        for (var i = 0; i < 60; i++) {
-          if (_selected_minutes[i] == true) {
+        for (var i = 0; i <= CRON_HOURS_MAX; i++) {
+          if (_selected_hours[i] == true) {
             if (firstValue) {
               firstValue = false;
             } else {
@@ -258,61 +261,23 @@ class _ParamHoursState extends ConsumerState<ParamHours> {
           }
         }
         if (!tmpString.isEmpty) {
-          _cronMinutesExpression = tmpString;
+          _cronHoursExpression = tmpString;
         } else {
-          _cronMinutesMode = CronMinutesMode.EVERY_MINUTE;
-          calculateCronMinutesExpression();
+          _cronHoursMode = CronHoursMode.EVERY_HOUR;
+          calculateCronHoursExpression();
         }
     }
   }
 
   void resetOtherModes() {
-    if (_cronMinutesMode != CronMinutesMode.SELECTED_MINUTES) {
-      for (var i = 0; i < _selected_minutes.length; i++) {
-        _selected_minutes[i] = false;
+    if (_cronHoursMode != CronHoursMode.SELECTED_HOURS) {
+      for (var i = 0; i < _selected_hours.length; i++) {
+        _selected_hours[i] = false;
       }
     }
-    if (_cronMinutesMode != CronMinutesMode.EVERY_N_MINUTES) {
-      _n_minute_value = 0;
+    if (_cronHoursMode != CronHoursMode.EVERY_N_HOURS) {
+      _n_hour_value = CRON_HOURS_EVERY_N_MIN;
     }
   }
 }
 
-
-CronMinutesMode getCronMinutesMode(String cronMinutesExpression) {
-  if (cronMinutesExpression == '*') {
-    return CronMinutesMode.EVERY_MINUTE;
-  }
-  if (cronMinutesExpression.contains('*/')) {
-    return CronMinutesMode.EVERY_N_MINUTES;
-  }
-
-  return CronMinutesMode.SELECTED_MINUTES;
-}
-
-double getEveryNMinutesValue(
-    CronMinutesMode cronMinutesMode, String cronMinutesExpression) {
-  if (cronMinutesMode == CronMinutesMode.EVERY_N_MINUTES) {
-    return double.parse(cronMinutesExpression.split("*/")[1]);
-  } else {
-    return 1;
-  }
-}
-
-List<bool> getSelectedMinutesValues(
-    CronMinutesMode cronMinutesMode, String cronMinutesExpression) {
-  List<bool> selectedMinutes = [];
-  for (var i = 0; i < 60; i++) {
-    selectedMinutes.add(false);
-  }
-
-  if (cronMinutesMode == CronMinutesMode.SELECTED_MINUTES) {
-    List<int> minutes =
-    cronMinutesExpression.split(',').map((e) => int.parse(e)).toList();
-    for (var i in minutes) {
-      selectedMinutes[i] = true;
-    }
-  }
-
-  return selectedMinutes;
-}

@@ -247,7 +247,7 @@ class _ParamMinutesState extends ConsumerState<ParamMinutes> {
       case CronMinutesMode.SELECTED_MINUTES:
         String tmpString = '';
         bool firstValue = true;
-        for (var i = 0; i < 60; i++) {
+        for (var i = 0; i <= CRON_MINUTES_MAX; i++) {
           if (_selected_minutes[i] == true) {
             if (firstValue) {
               firstValue = false;
@@ -273,7 +273,7 @@ class _ParamMinutesState extends ConsumerState<ParamMinutes> {
       }
     }
     if (_cronMinutesMode != CronMinutesMode.EVERY_N_MINUTES) {
-      _n_minute_value = 0;
+      _n_minute_value = CRON_MINUTES_EVERY_N_MIN;
     }
   }
 }
