@@ -9,7 +9,12 @@ double CRON_HOURS_MIN = 0;
 double CRON_HOURS_MAX = 23;
 double CRON_HOURS_EVERY_N_MIN = 1;
 double CRON_HOURS_EVERY_N_MAX = 23;
-// int CRON_MINUTES_SLIDER_DIVISIONS = 59;
+
+double CRON_DAY_OF_MONTH_MIN = 1;
+double CRON_DAY_OF_MONTH_MAX = 31;
+
+double CRON_MONTH_MIN = 1;
+double CRON_MONTH_MAX = 12;
 
 String INITIAL_CRON_EXPRESSION = '*/5 * * * *';
 String CRON_EXPRESSION_EVERY_MINUTE = '* * * * *';

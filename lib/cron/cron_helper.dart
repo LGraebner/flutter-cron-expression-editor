@@ -82,6 +82,60 @@ List<bool> getSelectedHoursValues(
   return selectedHours;
 }
 
+/* Day of Month */
+CronDayOfMonthMode getCronDayOfMonthMode(String cronDayOfMonthExpression) {
+  if (cronDayOfMonthExpression == EVERY_UNIT_EXP) {
+    return CronDayOfMonthMode.EVERY_DAY;
+  }
+
+  return CronDayOfMonthMode.SELECTED_DAYS;
+}
+
+List<bool> getSelectedDaysValues(
+    CronDayOfMonthMode cronDayOfMonthMode, String cronDayOfMonthExpression) {
+  List<bool> selectedDays = [];
+  for (var i = 0; i <= (CRON_DAY_OF_MONTH_MAX + CRON_DAY_OF_MONTH_MIN); i++) {
+    selectedDays.add(false);
+  }
+
+  if (cronDayOfMonthMode == CronDayOfMonthMode.SELECTED_DAYS) {
+    List<int> days =
+    cronDayOfMonthExpression.split(',').map((e) => int.parse(e)).toList();
+    for (var i in days) {
+      selectedDays[i] = true;
+    }
+  }
+
+  return selectedDays;
+}
+
+/* Month */
+CronMonthMode getCronMonthMode(String cronMonthExpression) {
+  if (cronMonthExpression == EVERY_UNIT_EXP) {
+    return CronMonthMode.EVERY_MONTH;
+  }
+
+  return CronMonthMode.SELECTED_MONTHS;
+}
+
+List<bool> getSelectedMonthsValues(
+    CronMonthMode cronMonthMode, String cronMonthExpression) {
+  List<bool> selectedMonths = [];
+  for (var i = 0; i <= (CRON_MONTH_MAX + CRON_MONTH_MIN); i++) {
+    selectedMonths.add(false);
+  }
+
+  if (cronMonthMode == CronMonthMode.SELECTED_MONTHS) {
+    List<int> months =
+    cronMonthExpression.split(',').map((e) => int.parse(e)).toList();
+    for (var i in months) {
+      selectedMonths[i] = true;
+    }
+  }
+
+  return selectedMonths;
+}
+
 /* General */
 
 double getEveryNValue(String cronUnitExpression) {

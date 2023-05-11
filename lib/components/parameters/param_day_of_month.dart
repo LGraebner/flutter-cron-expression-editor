@@ -1,31 +1,45 @@
+import 'package:cron_expression_editor/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../cron/cron_helper.dart';
+import '../../cron/cron_modes.dart';
+import '../../helper/button_factory.dart';
+import '../../state/cron_expression_model.dart';
+import '../../state/cron_expression_notifier.dart';
+import '../../state/state_providers.dart';
 
-final int MIN_DAYS = 1;
-final int MAX_DAYS = 31;
-
-class ParamDayOfMonth extends StatefulWidget {
+class ParamDayOfMonth extends ConsumerStatefulWidget {
   const ParamDayOfMonth({super.key});
 
   @override
-  State<ParamDayOfMonth> createState() => _ParamDayOfMonthState();
+  _ParamDayOfMonthState createState() => _ParamDayOfMonthState();
 }
 
-class _ParamDayOfMonthState extends State<ParamDayOfMonth> {
+class _ParamDayOfMonthState extends ConsumerState<ParamDayOfMonth> {
+  late String _cronDayOfMonthExpression;
+  late CronDayOfMonthMode _cronDayOfMonthMode;
 
-  String _cronDayOfMonthExpression = '*';
-  CronDayOfMonthMode _cronDayOfMonthMode = CronDayOfMonthMode.EVERY_DAY;
+  late List<bool> _selected_days;
 
-  List<bool> _selected_days= createSelectedDaysValues();
-
-  final cronMinutesExpressionController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return createMinutesSelector(context);
+    final state = ref.watch(cronExpressionProvider) as CronExpressionModel;
+    _cronDayOfMonthExpression = state.cronExpression.split(" ")[2];
+    _cronDayOfMonthMode = getCronDayOfMonthMode(_cronDayOfMonthExpression);
+    _selected_days =
+        getSelectedDaysValues(_cronDayOfMonthMode, _cronDayOfMonthExpression);
+
+    return createDayOfMonthSelector(context, state, ref);
   }
 
-  Widget createMinutesSelector(BuildContext context) {
+  Widget createDayOfMonthSelector(
+      BuildContext context, CronExpressionModel state, WidgetRef ref) {
     var t = AppLocalizations.of(context);
 
     return DefaultTabController(
@@ -33,14 +47,13 @@ class _ParamDayOfMonthState extends State<ParamDayOfMonth> {
         child: Column(
           children: [
             const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(10.0),
-              child: TextField(
-                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: _cronDayOfMonthExpression),
-              ),
+            Row(
+              children: [
+                createSubCronExpressionLabel('${state.dayOfMonth}', COLOR_DAY_OF_MONTH)
+              ],
+            ),
+            SizedBox(
+              height: 10,
             ),
             TabBar(
               labelColor: Colors.black,
@@ -60,6 +73,7 @@ class _ParamDayOfMonthState extends State<ParamDayOfMonth> {
 
   Widget createEveryDayContent() {
     var t = AppLocalizations.of(context);
+    final notifier = ref.read(cronExpressionProvider.notifier);
 
     return Column(
       children: [
@@ -69,36 +83,41 @@ class _ParamDayOfMonthState extends State<ParamDayOfMonth> {
             child: Row(
               children: [
                 Expanded(
-                    child: OutlinedButton(
-                      child: Text(
-                        t!.every_day,
-                        style: TextStyle(fontSize: 18.0),
+                  child: OutlinedButton(
+                    child: Text(
+                      t!.every_day,
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                    style: ButtonStyle(
+                      backgroundColor:
+                      MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                          if (_cronDayOfMonthMode ==
+                              CronDayOfMonthMode.EVERY_DAY) {
+                            return COLOR_PARAM_MODE_ACTIVE_BUTTON_BACKGROUND;
+                          }
+                          return COLOR_PARAM_MODE_INACTIVE_BUTTON_BACKGROUND; // defer to the defaults
+                        },
                       ),
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      foregroundColor:
+                      MaterialStateProperty.resolveWith<Color?>(
                               (Set<MaterialState> states) {
                             if (_cronDayOfMonthMode == CronDayOfMonthMode.EVERY_DAY) {
-                              return Colors.blueAccent;
+                              return COLOR_PARAM_MODE_ACTIVE_BUTTON_FOREGROUND;
                             }
-                            return Colors.white; // defer to the defaults
-                          },
-                        ),
-                        foregroundColor: MaterialStateProperty.resolveWith<Color?>(
-                                (Set<MaterialState> states) {
-                              if (_cronDayOfMonthMode == CronDayOfMonthMode.EVERY_DAY) {
-                                return Colors.white;
-                              }
-                              return Colors.black54; // defer to the defaults
-                            }),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _cronDayOfMonthMode = CronDayOfMonthMode.EVERY_DAY;
-                          calculateCronDayOfMonthExpression();
-                          resetOtherModes();
-                        });
-                      },
-                    )),
+                            return COLOR_PARAM_MODE_INACTIVE_BUTTON_FOREGROUND; // defer to the defaults
+                          }),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _cronDayOfMonthMode = CronDayOfMonthMode.EVERY_DAY;
+                        calculateCronDayOfMonthExpression();
+                        notifier.setDayOfMonth(_cronDayOfMonthExpression);
+                        resetOtherModes();
+                      });
+                    },
+                  ),
+                ),
               ],
             )),
       ],
@@ -106,6 +125,8 @@ class _ParamDayOfMonthState extends State<ParamDayOfMonth> {
   }
 
   Widget createSelectedDaysContent() {
+    final notifier = ref.read(cronExpressionProvider.notifier);
+
     return Column(children: [
       const SizedBox(height: 10),
       Container(
@@ -115,57 +136,67 @@ class _ParamDayOfMonthState extends State<ParamDayOfMonth> {
               child: Wrap(
                 direction: Axis.vertical,
                 spacing: 10,
-                children: generateDayOfMonthSelection(),
+                children: generateDayOfMonthSelection(notifier),
               )))
     ]);
   }
 
-  List<Widget> generateDayOfMonthSelection() {
+  List<Widget> generateDayOfMonthSelection(CronExpressionNotifier notifier) {
     List<Widget> rows = [];
 
-    int maxRows = (MAX_DAYS-MIN_DAYS) ~/ 10 + 1;
-    int dayCount = 0;
-    for (var i = 0; i < maxRows; i++) {
-      List<Widget> minuteButtons = [];
-      for (var j = 0; j < 10 && dayCount <= (MAX_DAYS-MIN_DAYS); j++) {
-        int dayValue = i * 10 + j + MIN_DAYS;
-        OutlinedButton minuteButton = new OutlinedButton(
+    int mod = 7;
+    List<Widget> dayButtons = [];
+    for (var i = CRON_DAY_OF_MONTH_MIN; i <= CRON_DAY_OF_MONTH_MAX; i++) {
+      int dayValue = i.toInt();
+      OutlinedButton dayButton = OutlinedButton(
           child: Text(
-            (dayValue).toString(),
+            dayValue.toString(),
             style: TextStyle(fontSize: 16.0),
           ),
           style: ButtonStyle(
               backgroundColor: MaterialStateProperty.resolveWith<Color?>(
                     (Set<MaterialState> states) {
-                  if (_selected_days[dayValue-MIN_DAYS]) {
-                    return Colors.blueAccent;
+                  if (_selected_days[dayValue]) {
+                    return COLOR_PARAM_MODE_ACTIVE_BUTTON_BACKGROUND;
                   }
-                  return Colors.white; // defer to the defaults
+                  return COLOR_PARAM_MODE_INACTIVE_BUTTON_BACKGROUND; // defer to the defaults
                 },
               ), foregroundColor: MaterialStateProperty.resolveWith<Color?>(
                   (Set<MaterialState> states) {
-                if (_selected_days[dayValue-MIN_DAYS]) {
-                  return Colors.white;
+                if (_selected_days[dayValue]) {
+                  return COLOR_PARAM_MODE_ACTIVE_BUTTON_FOREGROUND;
                 }
-                return Colors.black54; // defer to the defaults
+                return COLOR_PARAM_MODE_INACTIVE_BUTTON_FOREGROUND; // defer to the defaults
               })),
           onPressed: () {
             setState(() {
-              _selected_days[dayValue-MIN_DAYS] = !_selected_days[dayValue-MIN_DAYS];
+              _selected_days[dayValue] = !_selected_days[dayValue];
               _cronDayOfMonthMode = CronDayOfMonthMode.SELECTED_DAYS;
               calculateCronDayOfMonthExpression();
+              notifier.setDayOfMonth(_cronDayOfMonthExpression);
+
               resetOtherModes();
             });
           },
-        );
-        minuteButtons.add(minuteButton);
-        dayCount++;
+          onLongPress: () {
+            setState(() {
+              _selected_days[dayValue] = !_selected_days[dayValue];
+              _cronDayOfMonthMode = CronDayOfMonthMode.SELECTED_DAYS;
+              calculateCronDayOfMonthExpression();
+              notifier.setDayOfMonth(_cronDayOfMonthExpression);
+
+              resetOtherModes();
+            });
+          });
+      dayButtons.add(dayButton);
+      if (i % mod == 0 || i == CRON_DAY_OF_MONTH_MAX) {
+        rows.add(Wrap(
+            direction: Axis.horizontal,
+            alignment: WrapAlignment.start,
+            spacing: 10,
+            children: dayButtons));
+        dayButtons = [];
       }
-      rows.add(new Wrap(
-          direction: Axis.horizontal,
-          alignment: WrapAlignment.start,
-          spacing: 10,
-          children: minuteButtons));
     }
 
     return rows;
@@ -179,14 +210,14 @@ class _ParamDayOfMonthState extends State<ParamDayOfMonth> {
       case CronDayOfMonthMode.SELECTED_DAYS:
         String tmpString = '';
         bool firstValue = true;
-        for (var i=0; i<_selected_days.length; i++) {
+        for (var i = 0; i <= (CRON_DAY_OF_MONTH_MAX+CRON_DAY_OF_MONTH_MIN); i++) {
           if (_selected_days[i] == true) {
             if (firstValue) {
               firstValue = false;
             } else {
               tmpString += ',';
             }
-            tmpString += (i+MIN_DAYS).toString();
+            tmpString += i.toString();
           }
         }
         if (!tmpString.isEmpty) {
@@ -200,23 +231,12 @@ class _ParamDayOfMonthState extends State<ParamDayOfMonth> {
 
   void resetOtherModes() {
     if (_cronDayOfMonthMode != CronDayOfMonthMode.SELECTED_DAYS) {
-      for (var i=0; i < _selected_days.length; i++) {
+      for (var i = 0; i < _selected_days.length; i++) {
         _selected_days[i] = false;
       }
     }
   }
 }
 
-List<bool> createSelectedDaysValues() {
-  List<bool> selectedDays = [];
-  for (var i = 0; i <= MAX_DAYS-MIN_DAYS; i++) {
-    selectedDays.add(false);
-  }
 
-  return selectedDays;
-}
 
-enum CronDayOfMonthMode {
-  EVERY_DAY,
-  SELECTED_DAYS
-}

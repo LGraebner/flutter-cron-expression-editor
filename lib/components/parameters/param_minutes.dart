@@ -193,7 +193,7 @@ class _ParamMinutesState extends ConsumerState<ParamMinutes> {
       List<Widget> minuteButtons = [];
       for (var j = 0; j < 10; j++) {
         int minuteValue = i * 10 + j;
-        OutlinedButton minuteButton = new OutlinedButton(
+        OutlinedButton minuteButton = OutlinedButton(
           child: Text(
             minuteValue.toString(),
             style: TextStyle(fontSize: 16.0),
