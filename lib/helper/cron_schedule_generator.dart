@@ -2,7 +2,7 @@ import 'package:easy_cron/easy_cron.dart';
 import 'package:intl/intl.dart';
 
 final String dateFormat = 'HH:mm:ss a, LLL d y';
-final int nbMaxRows = 16;
+final int nbMaxRows = 18;
 
 final parser = UnixCronParser();
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Widget createHeading(String title, IconData iconData, Widget child) {
+Widget createHeading(String title, IconData iconData, Widget child, [ double? height ]) {
   return Container(
       margin: const EdgeInsets.all(10.0),
 
@@ -20,6 +20,7 @@ Widget createHeading(String title, IconData iconData, Widget child) {
               )],)),
           Container(
             padding: const EdgeInsets.all(15.0),
+            height: height,
             child: child,
           )
         ],

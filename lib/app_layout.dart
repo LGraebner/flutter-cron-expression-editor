@@ -19,60 +19,28 @@ class _AppLayoutState extends State<AppLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            appBar: AppBar(
-            // Here we take the value from the MyHomePage object that was created by
-            // the App.build method, and use it to set our appbar title.
-            title: Text(widget.title),
-                actions: [
-
-                PopupMenuButton(
-            icon: Icon(Icons.more_vert, color: Colors.white, size: 35,),
-
-                // add icon, by default "3 dot" icon
-                // icon: Icon(Icons.book)
-
-                itemBuilder: (context){
-    return [
-    PopupMenuItem<int>(
-    value: 0,
-    child: Text("My Account"),
-    ),
-
-    PopupMenuItem<int>(
-    value: 1,
-    child: Text("Settings"),
-    ),
-
-    PopupMenuItem<int>(
-    value: 2,
-    child: Text("Logout"),
-    ),
-    ];
-    },
-        onSelected:(value){
-          if(value == 0){
-            print("My account menu is selected.");
-          }else if(value == 1){
-            print("Settings menu is selected.");
-          }else if(value == 2){
-            print("Logout menu is selected.");
-          }
-        }
-    )],
+        appBar: AppBar(
+          title: Text(widget.title),
         ),
-        body: Row(children: [
-      Expanded(
-          flex: 7,
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            createHeading('Cron Expression', Icons.auto_awesome, CronExpressionDisplay()),
-            createHeading('Parameters', Icons.tune, ParamCaroussel())
-          ])),
-      Expanded(
-          flex: 3,
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [createHeading('Schedule', Icons.schedule, CronSchedule())]))
-    ]));
+        body: Row(
+            children: [
+              Expanded(
+                  flex: 7,
+                  child: ListView(
+                      // crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        createHeading('Cron Expression', Icons.auto_awesome,
+                            CronExpressionDisplay()),
+                        createHeading('Parameters', Icons.tune, ParamCaroussel(), 770)
+                      ])),
+              Expanded(
+                  flex: 3,
+                  child: ListView(
+                      // crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        createHeading('Schedule', Icons.schedule, CronSchedule(), 950)
+                      ]))
+            ])
+    );
   }
 }

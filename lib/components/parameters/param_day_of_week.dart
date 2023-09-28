@@ -1,12 +1,18 @@
+import 'package:cron_expression_editor/helper/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final int MIN_DAY_OF_WEEK = 0;
-final int MAX_DAY_OF_WEEK = 7;
+import '../../constants.dart';
+import '../../cron/cron_helper.dart';
+import '../../cron/cron_modes.dart';
+import '../../helper/button_factory.dart';
+import '../../state/cron_expression_model.dart';
+import '../../state/cron_expression_notifier.dart';
+import '../../state/state_providers.dart';
 
 const dayOfWeekMap = {
-  0 : 'SUNDAY',
   1 : 'MONDAY',
   2 : 'TUESDAY',
   3 : 'WEDNESDAY',
@@ -16,28 +22,38 @@ const dayOfWeekMap = {
   7 : 'SUNDAY',
 };
 
-class ParamDayOfWeek extends StatefulWidget {
+class ParamDayOfWeek extends ConsumerStatefulWidget {
   const ParamDayOfWeek({super.key});
 
   @override
-  State<ParamDayOfWeek> createState() => _ParamDayOfWeekState();
+  _ParamDayOfWeekState createState() => _ParamDayOfWeekState();
 }
 
-class _ParamDayOfWeekState extends State<ParamDayOfWeek> {
+class _ParamDayOfWeekState extends ConsumerState<ParamDayOfWeek> {
+  late String _cronDayOfWeekExpression;
+  late CronDayOfWeekMode _cronDayOfWeekMode;
 
-  String _cronDayOfWeekExpression = '*';
-  CronDayOfWeekMode _cronDayOfWeekMode = CronDayOfWeekMode.EVERY_DAY_OF_WEEK;
+  late List<bool> _selected_days_of_week;
 
-  List<bool> _selected_days_of_week = createSelectedDaysOfWeekValues();
-
-  final cronMinutesExpressionController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return createMonthSelector(context);
+    final state = ref.watch(cronExpressionProvider) as CronExpressionModel;
+    _cronDayOfWeekExpression = state.cronExpression.split(" ")[4];
+    _cronDayOfWeekMode = getCronDayOfWeekMode(_cronDayOfWeekExpression);
+    _selected_days_of_week =
+        getSelectedDaysOfWeekValues(
+            _cronDayOfWeekMode, _cronDayOfWeekExpression);
+
+    return createDayOfWeekSelector(context, state, ref);
   }
 
-  Widget createMonthSelector(BuildContext context) {
+  Widget createDayOfWeekSelector(BuildContext context,
+      CronExpressionModel state, WidgetRef ref) {
     var t = AppLocalizations.of(context);
 
     return DefaultTabController(
@@ -45,14 +61,14 @@ class _ParamDayOfWeekState extends State<ParamDayOfWeek> {
         child: Column(
           children: [
             const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(10.0),
-              child: TextField(
-                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: _cronDayOfWeekExpression),
-              ),
+            Row(
+              children: [
+                createSubCronExpressionLabel(
+                    '${state.dayOfWeek}', COLOR_DAY_OF_WEEK)
+              ],
+            ),
+            SizedBox(
+              height: 10,
             ),
             TabBar(
               labelColor: Colors.black,
@@ -63,15 +79,17 @@ class _ParamDayOfWeekState extends State<ParamDayOfWeek> {
             ),
             Expanded(
                 child: TabBarView(children: [
-                  createEveryDayContent(),
-                  createSelectedDaysContent()
+                  createEveryDayOfWeekContent(),
+                  createSelectedDaysOfWeekContent()
                 ]))
           ],
         ));
   }
 
-  Widget createEveryDayContent() {
+
+  Widget createEveryDayOfWeekContent() {
     var t = AppLocalizations.of(context);
+    final notifier = ref.read(cronExpressionProvider.notifier);
 
     return Column(
       children: [
@@ -81,43 +99,51 @@ class _ParamDayOfWeekState extends State<ParamDayOfWeek> {
             child: Row(
               children: [
                 Expanded(
-                    child: OutlinedButton(
-                      child: Text(
-                        t!.every_day_of_week,
-                        style: TextStyle(fontSize: 18.0),
+                  child: OutlinedButton(
+                    child: Text(
+                      t!.every_day_of_week,
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                    style: ButtonStyle(
+                      backgroundColor:
+                      MaterialStateProperty.resolveWith<Color?>(
+                            (Set<MaterialState> states) {
+                          if (_cronDayOfWeekMode ==
+                              CronDayOfWeekMode.EVERY_DAY_OF_WEEK) {
+                            return COLOR_PARAM_MODE_ACTIVE_BUTTON_BACKGROUND;
+                          }
+                          return COLOR_PARAM_MODE_INACTIVE_BUTTON_BACKGROUND; // defer to the defaults
+                        },
                       ),
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                      foregroundColor:
+                      MaterialStateProperty.resolveWith<Color?>(
                               (Set<MaterialState> states) {
-                            if (_cronDayOfWeekMode == CronDayOfWeekMode.EVERY_DAY_OF_WEEK) {
-                              return Colors.blueAccent;
+                            if (_cronDayOfWeekMode ==
+                                CronDayOfWeekMode.EVERY_DAY_OF_WEEK) {
+                              return COLOR_PARAM_MODE_ACTIVE_BUTTON_FOREGROUND;
                             }
-                            return Colors.white; // defer to the defaults
-                          },
-                        ),
-                        foregroundColor: MaterialStateProperty.resolveWith<Color?>(
-                                (Set<MaterialState> states) {
-                              if (_cronDayOfWeekMode == CronDayOfWeekMode.EVERY_DAY_OF_WEEK) {
-                                return Colors.white;
-                              }
-                              return Colors.black54; // defer to the defaults
-                            }),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _cronDayOfWeekMode = CronDayOfWeekMode.EVERY_DAY_OF_WEEK;
-                          calculateCronDayOfMonthExpression();
-                          resetOtherModes();
-                        });
-                      },
-                    )),
+                            return COLOR_PARAM_MODE_INACTIVE_BUTTON_FOREGROUND; // defer to the defaults
+                          }),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _cronDayOfWeekMode = CronDayOfWeekMode.EVERY_DAY_OF_WEEK;
+                        calculateCronDayOfWeekExpression();
+                        notifier.setDayOfWeek(_cronDayOfWeekExpression);
+                        resetOtherModes();
+                      });
+                    },
+                  ),
+                ),
               ],
             )),
       ],
     );
   }
 
-  Widget createSelectedDaysContent() {
+  Widget createSelectedDaysOfWeekContent() {
+    final notifier = ref.read(cronExpressionProvider.notifier);
+
     return Column(children: [
       const SizedBox(height: 10),
       Container(
@@ -127,64 +153,74 @@ class _ParamDayOfWeekState extends State<ParamDayOfWeek> {
               child: Wrap(
                 direction: Axis.vertical,
                 spacing: 10,
-                children: generateDayOfMonthSelection(),
+                children: generateDayOfWeekSelection(notifier),
               )))
     ]);
   }
 
-  List<Widget> generateDayOfMonthSelection() {
+  List<Widget> generateDayOfWeekSelection(CronExpressionNotifier notifier) {
     List<Widget> rows = [];
 
-    int maxRows = (MAX_DAY_OF_WEEK-MIN_DAY_OF_WEEK) ~/ 4 + 1;
-    int dayCount = 0;
-    for (var i = 0; i < maxRows; i++) {
-      List<Widget> minuteButtons = [];
-      for (var j = 0; j < 4 && dayCount <= (MAX_DAY_OF_WEEK-MIN_DAY_OF_WEEK); j++) {
-
-        int dayOfWeekValue = i * 4 + j + MIN_DAY_OF_WEEK;
-        SizedBox minuteButton = new SizedBox(width: 150, child: OutlinedButton(
+    int mod = 3;
+    List<Widget> dayOfWeekButtons = [];
+    for (var i = CRON_DAY_OF_WEEK_MIN; i <= CRON_DAY_OF_WEEK_MAX; i++) {
+      int dayOfWeekValue = i.toInt();
+      SizedBox dayOfWeekButton = new SizedBox(width: 150, child:
+      OutlinedButton(
           child: Text(
-            toBeginningOfSentenceCase(dayOfWeekMap[dayOfWeekValue]!.toLowerCase())!,
+            dayOfWeekMap[dayOfWeekValue].toString().capitalize(),
             style: TextStyle(fontSize: 16.0),
           ),
           style: ButtonStyle(
               backgroundColor: MaterialStateProperty.resolveWith<Color?>(
                     (Set<MaterialState> states) {
-                  if (_selected_days_of_week[dayOfWeekValue-MIN_DAY_OF_WEEK]) {
-                    return Colors.blueAccent;
+                  if (_selected_days_of_week[dayOfWeekValue]) {
+                    return COLOR_PARAM_MODE_ACTIVE_BUTTON_BACKGROUND;
                   }
-                  return Colors.white; // defer to the defaults
+                  return COLOR_PARAM_MODE_INACTIVE_BUTTON_BACKGROUND; // defer to the defaults
                 },
               ), foregroundColor: MaterialStateProperty.resolveWith<Color?>(
                   (Set<MaterialState> states) {
-                if (_selected_days_of_week[dayOfWeekValue-MIN_DAY_OF_WEEK]) {
-                  return Colors.white;
+                if (_selected_days_of_week[dayOfWeekValue]) {
+                  return COLOR_PARAM_MODE_ACTIVE_BUTTON_FOREGROUND;
                 }
-                return Colors.black54; // defer to the defaults
+                return COLOR_PARAM_MODE_INACTIVE_BUTTON_FOREGROUND; // defer to the defaults
               })),
           onPressed: () {
             setState(() {
-              _selected_days_of_week[dayOfWeekValue-MIN_DAY_OF_WEEK] = !_selected_days_of_week[dayOfWeekValue-MIN_DAY_OF_WEEK];
+              _selected_days_of_week[dayOfWeekValue] = !_selected_days_of_week[dayOfWeekValue];
               _cronDayOfWeekMode = CronDayOfWeekMode.SELECTED_DAYS_OF_WEEK;
-              calculateCronDayOfMonthExpression();
+              calculateCronDayOfWeekExpression();
+              notifier.setDayOfWeek(_cronDayOfWeekExpression);
+
               resetOtherModes();
             });
           },
-        ));
-        minuteButtons.add(minuteButton);
-        dayCount++;
+          onLongPress: () {
+            setState(() {
+              _selected_days_of_week[dayOfWeekValue] = !_selected_days_of_week[dayOfWeekValue];
+              _cronDayOfWeekMode = CronDayOfWeekMode.SELECTED_DAYS_OF_WEEK;
+              calculateCronDayOfWeekExpression();
+              notifier.setDayOfWeek(_cronDayOfWeekExpression);
+
+              resetOtherModes();
+            });
+          }));
+      dayOfWeekButtons.add(dayOfWeekButton);
+      if (i % mod == 0 || i == CRON_DAY_OF_WEEK_MAX) {
+        rows.add(Wrap(
+            direction: Axis.horizontal,
+            alignment: WrapAlignment.start,
+            spacing: 10,
+            children: dayOfWeekButtons));
+        dayOfWeekButtons = [];
       }
-      rows.add(new Wrap(
-          direction: Axis.horizontal,
-          alignment: WrapAlignment.start,
-          spacing: 10,
-          children: minuteButtons));
     }
 
     return rows;
   }
 
-  void calculateCronDayOfMonthExpression() {
+  void calculateCronDayOfWeekExpression() {
     switch (_cronDayOfWeekMode) {
       case CronDayOfWeekMode.EVERY_DAY_OF_WEEK:
         _cronDayOfWeekExpression = '*';
@@ -192,44 +228,30 @@ class _ParamDayOfWeekState extends State<ParamDayOfWeek> {
       case CronDayOfWeekMode.SELECTED_DAYS_OF_WEEK:
         String tmpString = '';
         bool firstValue = true;
-        for (var i=0; i<_selected_days_of_week.length; i++) {
+        for (var i = 0; i <= (CRON_DAY_OF_WEEK_MAX + CRON_DAY_OF_WEEK_MIN); i++) {
           if (_selected_days_of_week[i] == true) {
             if (firstValue) {
               firstValue = false;
             } else {
               tmpString += ',';
             }
-            tmpString += (i+MIN_DAY_OF_WEEK).toString();
+            tmpString += i.toString();
           }
         }
         if (!tmpString.isEmpty) {
           _cronDayOfWeekExpression = tmpString;
         } else {
           _cronDayOfWeekMode = CronDayOfWeekMode.EVERY_DAY_OF_WEEK;
-          calculateCronDayOfMonthExpression();
+          calculateCronDayOfWeekExpression();
         }
     }
   }
 
   void resetOtherModes() {
     if (_cronDayOfWeekMode != CronDayOfWeekMode.SELECTED_DAYS_OF_WEEK) {
-      for (var i=0; i < _selected_days_of_week.length; i++) {
+      for (var i = 0; i < _selected_days_of_week.length; i++) {
         _selected_days_of_week[i] = false;
       }
     }
   }
-}
-
-List<bool> createSelectedDaysOfWeekValues() {
-  List<bool> selectedDays = [];
-  for (var i = 0; i <= MAX_DAY_OF_WEEK-MIN_DAY_OF_WEEK; i++) {
-    selectedDays.add(false);
-  }
-
-  return selectedDays;
-}
-
-enum CronDayOfWeekMode {
-  EVERY_DAY_OF_WEEK,
-  SELECTED_DAYS_OF_WEEK
 }

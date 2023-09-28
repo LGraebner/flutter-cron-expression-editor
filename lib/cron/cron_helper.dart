@@ -136,6 +136,33 @@ List<bool> getSelectedMonthsValues(
   return selectedMonths;
 }
 
+/* Day of Week */
+CronDayOfWeekMode getCronDayOfWeekMode(String cronDayOfWeekExpression) {
+  if (cronDayOfWeekExpression == EVERY_UNIT_EXP) {
+    return CronDayOfWeekMode.EVERY_DAY_OF_WEEK;
+  }
+
+  return CronDayOfWeekMode.SELECTED_DAYS_OF_WEEK;
+}
+
+List<bool> getSelectedDaysOfWeekValues(
+    CronDayOfWeekMode cronDayOfWeekMode, String cronDayOfWeekExpression) {
+  List<bool> selectedDaysOfWeek = [];
+  for (var i = 0; i <= (CRON_DAY_OF_WEEK_MIN + CRON_DAY_OF_WEEK_MAX); i++) {
+    selectedDaysOfWeek.add(false);
+  }
+
+  if (cronDayOfWeekMode == CronDayOfWeekMode.SELECTED_DAYS_OF_WEEK) {
+    List<int> daysOfWeek =
+    cronDayOfWeekExpression.split(',').map((e) => int.parse(e)).toList();
+    for (var i in daysOfWeek) {
+      selectedDaysOfWeek[i] = true;
+    }
+  }
+
+  return selectedDaysOfWeek;
+}
+
 /* General */
 
 double getEveryNValue(String cronUnitExpression) {

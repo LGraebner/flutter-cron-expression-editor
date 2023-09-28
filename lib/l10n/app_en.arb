@@ -17,7 +17,7 @@
     "every_day_of_week" : "Every Day of Week",
     "selected_day_of_week" : "Selected Day of Week",
 
-    "cron_expression_caption_select_example" : "Sample cron",
+    "cron_expression_caption_select_example" : "Examples",
     "cron_expression_every_minute" : "Every minute",
     "cron_expression_every_10_minutes" : "Every 10 minutes",
     "cron_expression_every_hour" : "Every hour",

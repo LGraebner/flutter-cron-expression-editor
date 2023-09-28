@@ -1,6 +1,7 @@
+import 'dart:async';
+
 import 'package:cron_expression_editor/state/cron_expression_model.dart';
 import 'package:cron_expression_editor/state/state_providers.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -8,27 +9,53 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants.dart';
 import '../helper/button_factory.dart';
 
-
-class CronExpressionDisplay extends ConsumerWidget {
-  const CronExpressionDisplay({super.key});
+class CronExpressionDisplay extends ConsumerStatefulWidget {
+  CronExpressionDisplay({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _CronExpressionDisplayState createState() => _CronExpressionDisplayState();
+}
+
+class _CronExpressionDisplayState extends ConsumerState<CronExpressionDisplay> {
+  bool _showCopiedLabel = false;
+
+  @override
+  Widget build(BuildContext context) {
     var t = AppLocalizations.of(context);
 
     final state = ref.watch(cronExpressionProvider) as CronExpressionModel;
     return Row(children: <Widget>[
-      createMainButton(Icons.edit, () {}),
-      const SizedBox(width: 10),
       createMainCronExpressionLabel('${state.cronExpression}', 20.0),
       const SizedBox(width: 10),
       Container(
-          child: IconButton(
+        width: 50,
+          child: Column(
+        children: [
+          IconButton(
               onPressed: () async {
                 await Clipboard.setData(
                     ClipboardData(text: state.cronExpression));
+                setState(() {
+                  _showCopiedLabel = true;
+                });
+                Timer(
+                    Duration(milliseconds: 2000),
+                    () => setState(() {
+                          _showCopiedLabel = false;
+                        }));
               },
-              icon: Icon(Icons.content_copy, size: 30))),
+              highlightColor: Colors.green,
+              splashRadius: 20,
+              icon: Icon(Icons.content_copy, size: 30)),
+              SizedBox(height: 5,),
+              Text(
+                _showCopiedLabel ? 'Copied' : '',
+                textAlign: TextAlign.right,
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+              )
+        ],
+      )),
       const SizedBox(width: 20),
       createDropDownButton(ref, t)
     ]);
@@ -63,13 +90,13 @@ class CronExpressionDisplay extends ConsumerWidget {
           padding: EdgeInsets.only(left: 3, right: 5.0),
           child: Text(
             t!.cron_expression_caption_select_example,
-            style: TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 16, color: Colors.blueAccent),
           )),
       elevation: 16,
-      style: const TextStyle(color: Colors.deepPurple),
+      style: const TextStyle(color: Colors.blueAccent),
       underline: Container(
         height: 2,
-        color: Colors.deepPurpleAccent,
+        color: Colors.blueAccent,
       ),
       items: dropDownItems,
       onChanged: (value) =>
@@ -77,98 +104,3 @@ class CronExpressionDisplay extends ConsumerWidget {
     );
   }
 }
-
-//
-// class CronExpressionDisplay extends StatefulWidget {
-//
-//
-//
-//   const CronExpressionDisplay({super.key});
-//
-//   @override
-//   State<CronExpressionDisplay> createState() => _CronExpressionDisplayState();
-// }
-//
-// class _CronExpressionDisplayState extends State<CronExpressionDisplay> {
-//   final _cronExpressionController =
-//       TextEditingController(text: INITIAL_CRON_EXPRESSION);
-//
-//   String cronExpression = INITIAL_CRON_EXPRESSION;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Row(children: <Widget>[
-//       createMainButton(Icons.edit, () {}),
-//       const SizedBox(width: 10),
-//       Consumer(builder: (_, WidgetRef ref, __) {
-//         final state = ref.watch(cronExpressionProvider) as CronExpressionModel;
-//         cronExpression = state.cronExpression;
-//         return createMainCronExpressionLabel('${state.cronExpression}', 20.0);
-//       }),
-
-// Expanded(
-//   child: Container(
-//     decoration: BoxDecoration(
-//       color: Colors.white70,
-//       border: Border.all(
-//         color: Colors.blueAccent,
-//         width: 2,
-//       ),
-//       borderRadius: BorderRadius.circular(5),
-//     ),
-//     padding: const EdgeInsets.all(10.0),
-//     margin: const EdgeInsets.only(top: 5.0),
-//     child: Consumer(
-//       builder: (_, WidgetRef ref, __) {
-//         final state =
-//             ref.watch(cronExpressionProvider) as CronExpressionModel;
-//         return Text(
-//           '${state.cronExpression}',
-//           style: TextStyle(
-//               fontWeight: FontWeight.bold,
-//               fontSize: 20,
-//               color: Colors.black87),
-//           textAlign: TextAlign.left,
-//         );
-//       },
-//     ),
-//   ),
-// ),
-//
-//     const SizedBox(width: 10),
-//     Container(
-//         child: IconButton(
-//             onPressed: () async {
-//               await Clipboard.setData(ClipboardData(text: cronExpression));
-//             },
-//             icon: Icon(Icons.content_copy, size: 30))),
-//     const SizedBox(width: 20),
-//     createDropDownButton(),
-//   ]);
-// }
-//
-// @override
-// void initState() {
-//   // TODO: implement initState
-//   super.initState();
-//   _cronExpressionController.addListener(_printLatestValue);
-// }
-//
-// @override
-// void dispose() {
-//   // Clean up the controller when the widget is removed from the
-//   // widget tree.
-//   _cronExpressionController.dispose();
-//   super.dispose();
-// }
-
-// void _printLatestValue() {
-//   print('Second text field: ${_cronExpressionController.text}');
-//   _cronExpressionController.value = TextEditingValue(
-//     text: 'test',
-//     selection: TextSelection.fromPosition(
-//       TextPosition(offset: 'test'.length),
-//     ),
-//   );
-// }
-// }

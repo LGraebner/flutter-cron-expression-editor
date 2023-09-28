@@ -20,7 +20,6 @@ class _CronScheduleState extends State<CronSchedule> {
       final state = ref.watch(cronExpressionProvider) as CronExpressionModel;
       return createScheduleTable('${state.cronExpression}');
     });
-
   }
 
   Widget createScheduleTable(String cronExpression) {
@@ -38,19 +37,17 @@ class _CronScheduleState extends State<CronSchedule> {
       child: DataTable(
           headingRowHeight: 30,
           columns: const <DataColumn>[
-            DataColumn(label: Text('Next Trigger Dates', style: TextStyle(fontWeight: FontWeight.bold),)),
+            DataColumn(
+                label: Text(
+              'Next Trigger Dates',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            )),
           ],
           rows: List<DataRow>.generate(
             cronSchedules.length,
             (int index) => DataRow(
-
               color: MaterialStateProperty.resolveWith<Color?>(
                   (Set<MaterialState> states) {
-                // All rows will have the same selected color.
-                // if (states.contains(MaterialState.selected)) {
-                //   return Theme.of(ColorScheme.(brightness: brightness, primary: primary, onPrimary: onPrimary, secondary: secondary, onSecondary: onSecondary, error: error, onError: onError, background: background, onBackground: onBackground, surface: surface, onSurface: onSurface) colorScheme.primary.withOpacity(0.08);
-                // }
-                // Even rows will have a grey color.
                 if (index.isEven) {
                   return Colors.grey.withOpacity(0.2);
                 }
@@ -59,12 +56,6 @@ class _CronScheduleState extends State<CronSchedule> {
               cells: <DataCell>[
                 DataCell(Text(cronSchedules[index])),
               ],
-              // selected: selected[index],
-              // onSelectChanged: (bool? value) {
-              //   setState(() {
-              //     selected[index] = value!;
-              //   });
-              // },
             ),
           )),
     );

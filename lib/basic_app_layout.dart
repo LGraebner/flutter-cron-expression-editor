@@ -14,8 +14,6 @@ class _BasicAppLayoutState extends State<BasicAppLayout> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
           title: Text(widget.title),
         ),
         body: Container(
@@ -28,7 +26,7 @@ class _BasicAppLayoutState extends State<BasicAppLayout> {
                 const SizedBox(width: 10),
                 const Expanded(
                     child: TextField(
-                      decoration: InputDecoration(
+                  decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Cron Expression'),
                 )),
@@ -75,10 +73,6 @@ Widget createHeading(String title) {
 
 Widget createMainButton(IconData iconData) {
   return Container(
-      // decoration: BoxDecoration(
-      //   border: Border.all(color: Colors.grey, width: 1),
-      //   shape: BoxShape.circle,
-      // ),
       child: IconButton(onPressed: () {}, icon: Icon(iconData, size: 30)));
 }
 
@@ -97,26 +91,15 @@ Widget createScheduleTable() {
       (int index) => DataRow(
         color: MaterialStateProperty.resolveWith<Color?>(
             (Set<MaterialState> states) {
-          // All rows will have the same selected color.
-          // if (states.contains(MaterialState.selected)) {
-          //   return Theme.of(ColorScheme.(brightness: brightness, primary: primary, onPrimary: onPrimary, secondary: secondary, onSecondary: onSecondary, error: error, onError: onError, background: background, onBackground: onBackground, surface: surface, onSurface: onSurface) colorScheme.primary.withOpacity(0.08);
-          // }
-          // Even rows will have a grey color.
           if (index.isEven) {
             return Colors.grey.withOpacity(0.3);
           }
-          return null; // Use default value for other states and odd rows.
+          return null;
         }),
         cells: <DataCell>[
           DataCell(Text('Row $index')),
           DataCell(Text('Row $index'))
         ],
-        // selected: selected[index],
-        // onSelectChanged: (bool? value) {
-        //   setState(() {
-        //     selected[index] = value!;
-        //   });
-        // },
       ),
     ),
   );
