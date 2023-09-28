@@ -3,37 +3,37 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"assets/AssetManifest.bin": "693635b5258fe5f1cda720cf224f158c",
-"assets/AssetManifest.json": "2efbb41d7877d10aac9d091f58ccd7b9",
-"assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
-"assets/fonts/MaterialIcons-Regular.otf": "967ebae20467aa2bd54b2c8e604079d7",
-"assets/NOTICES": "05c974ffe1dde60e115ca3261e76c17c",
-"assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "89ed8f4e49bcdfc0b5bfc9b24591e347",
-"assets/shaders/ink_sparkle.frag": "f8b80e740d33eb157090be4e995febdf",
-"canvaskit/canvaskit.js": "5caccb235fad20e9b72ea6da5a0094e6",
-"canvaskit/canvaskit.wasm": "d9f69e0f428f695dc3d66b3a83a4aa8e",
-"canvaskit/chromium/canvaskit.js": "ffb2bb6484d5689d91f393b60664d530",
-"canvaskit/chromium/canvaskit.wasm": "393ec8fb05d94036734f8104fa550a67",
-"canvaskit/skwasm.js": "95f16c6690f955a45b2317496983dbe9",
-"canvaskit/skwasm.wasm": "d1fde2560be92c0b07ad9cf9acb10d05",
-"canvaskit/skwasm.worker.js": "51253d3321b11ddb8d73fa8aa87d3b15",
-"favicon.png": "5dcef449791fa27946b3d35ad8803796",
-"flutter.js": "6b515e434cea20006b3ef1726d2c8894",
-"icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
-"icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
-"icons/Icon-maskable-192.png": "c457ef57daa1d16f64b27b786ec2ea3c",
-"icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
-"index.html": "4b768ce3795b2ff5bb9a8f521b6d21e0",
-"/": "4b768ce3795b2ff5bb9a8f521b6d21e0",
-"main.dart.js": "cd950f220f3440dff3cf76079b20fea7",
-"manifest.json": "68d34101ff4313288f37db02a63f73ec",
-"version.json": "cdd708c34f224a5b8b407f652947268c"};
+const RESOURCES = {"flutter-cron-expression-editor/assets/AssetManifest.bin": "693635b5258fe5f1cda720cf224f158c",
+"flutter-cron-expression-editor/assets/AssetManifest.json": "2efbb41d7877d10aac9d091f58ccd7b9",
+"flutter-cron-expression-editor/assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
+"flutter-cron-expression-editor/assets/fonts/MaterialIcons-Regular.otf": "967ebae20467aa2bd54b2c8e604079d7",
+"flutter-cron-expression-editor/assets/NOTICES": "05c974ffe1dde60e115ca3261e76c17c",
+"flutter-cron-expression-editor/assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "89ed8f4e49bcdfc0b5bfc9b24591e347",
+"flutter-cron-expression-editor/assets/shaders/ink_sparkle.frag": "f8b80e740d33eb157090be4e995febdf",
+"flutter-cron-expression-editor/canvaskit/canvaskit.js": "5caccb235fad20e9b72ea6da5a0094e6",
+"flutter-cron-expression-editor/canvaskit/canvaskit.wasm": "d9f69e0f428f695dc3d66b3a83a4aa8e",
+"flutter-cron-expression-editor/canvaskit/chromium/canvaskit.js": "ffb2bb6484d5689d91f393b60664d530",
+"flutter-cron-expression-editor/canvaskit/chromium/canvaskit.wasm": "393ec8fb05d94036734f8104fa550a67",
+"flutter-cron-expression-editor/canvaskit/skwasm.js": "95f16c6690f955a45b2317496983dbe9",
+"flutter-cron-expression-editor/canvaskit/skwasm.wasm": "d1fde2560be92c0b07ad9cf9acb10d05",
+"flutter-cron-expression-editor/canvaskit/skwasm.worker.js": "51253d3321b11ddb8d73fa8aa87d3b15",
+"flutter-cron-expression-editor/favicon.png": "5dcef449791fa27946b3d35ad8803796",
+"flutter-cron-expression-editor/flutter.js": "6b515e434cea20006b3ef1726d2c8894",
+"flutter-cron-expression-editor/icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
+"flutter-cron-expression-editor/icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
+"flutter-cron-expression-editor/icons/Icon-maskable-192.png": "c457ef57daa1d16f64b27b786ec2ea3c",
+"flutter-cron-expression-editor/icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
+"flutter-cron-expression-editor/index.html": "4b768ce3795b2ff5bb9a8f521b6d21e0",
+"flutter-cron-expression-editor/": "4b768ce3795b2ff5bb9a8f521b6d21e0",
+"flutter-cron-expression-editor/main.dart.js": "cd950f220f3440dff3cf76079b20fea7",
+"flutter-cron-expression-editor/manifest.json": "68d34101ff4313288f37db02a63f73ec",
+"flutter-cron-expression-editor/version.json": "cdd708c34f224a5b8b407f652947268c"};
 // The application shell files that are downloaded before a service worker can
 // start.
-const CORE = ["main.dart.js",
-"index.html",
-"assets/AssetManifest.json",
-"assets/FontManifest.json"];
+const CORE = ["flutter-cron-expression-editor/main.dart.js",
+"flutter-cron-expression-editor/index.html",
+"flutter-cron-expression-editor/assets/AssetManifest.json",
+"flutter-cron-expression-editor/assets/FontManifest.json"];
 
 // During install, the TEMP cache is populated with the application shell files.
 self.addEventListener("install", (event) => {
