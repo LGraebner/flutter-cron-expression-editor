@@ -28,34 +28,36 @@ class _CronExpressionDisplayState extends ConsumerState<CronExpressionDisplay> {
       createMainCronExpressionLabel('${state.cronExpression}', 20.0),
       const SizedBox(width: 10),
       Container(
-        width: 50,
+          width: 45,
           child: Column(
-        children: [
-          IconButton(
-              onPressed: () async {
-                await Clipboard.setData(
-                    ClipboardData(text: state.cronExpression));
-                setState(() {
-                  _showCopiedLabel = true;
-                });
-                Timer(
-                    Duration(milliseconds: 2000),
-                    () => setState(() {
-                          _showCopiedLabel = false;
-                        }));
-              },
-              highlightColor: Colors.green,
-              splashRadius: 20,
-              icon: Icon(Icons.content_copy, size: 30)),
-              SizedBox(height: 5,),
+            children: [
+              IconButton(
+                  onPressed: () async {
+                    await Clipboard.setData(
+                        ClipboardData(text: state.cronExpression));
+                    setState(() {
+                      _showCopiedLabel = true;
+                    });
+                    Timer(
+                        Duration(milliseconds: 2000),
+                        () => setState(() {
+                              _showCopiedLabel = false;
+                            }));
+                  },
+                  highlightColor: Colors.green,
+                  splashRadius: 20,
+                  icon: Icon(Icons.content_copy, size: 40)),
+              SizedBox(
+                height: 10,
+              ),
               Text(
                 _showCopiedLabel ? 'Copied' : '',
                 textAlign: TextAlign.right,
                 style:
                     TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
               )
-        ],
-      )),
+            ],
+          )),
       const SizedBox(width: 20),
       createDropDownButton(ref, t)
     ]);
@@ -74,6 +76,9 @@ class _CronExpressionDisplayState extends ConsumerState<CronExpressionDisplay> {
       t!.cron_expression_every_month: CRON_EXPRESSION_EVERY_MONTH,
       t!.cron_expression_every_quarter: CRON_EXPRESSION_EVERY_QUARTER,
     };
+    var dropDownEntries = <DropdownMenuEntry<String>>[];
+    cronExamplesMap.forEach((k, v) =>
+        dropDownEntries.add(new DropdownMenuEntry(value: v, label: k)));
 
     final List<DropdownMenuItem<String>> dropDownItems = [];
     cronExamplesMap.forEach((k, v) {
@@ -83,24 +88,11 @@ class _CronExpressionDisplayState extends ConsumerState<CronExpressionDisplay> {
       ));
     });
 
-    return DropdownButton<String>(
-      value: null,
-      // icon: const Icon(Icons.arrow_downward),
-      hint: Container(
-          padding: EdgeInsets.only(left: 3, right: 5.0),
-          child: Text(
-            t!.cron_expression_caption_select_example,
-            style: TextStyle(fontSize: 16, color: Colors.blueAccent),
-          )),
-      elevation: 16,
-      style: const TextStyle(color: Colors.blueAccent),
-      underline: Container(
-        height: 2,
-        color: Colors.blueAccent,
-      ),
-      items: dropDownItems,
-      onChanged: (value) =>
-          ref.read(cronExpressionProvider.notifier).setCronExpression(value!),
-    );
+    return DropdownMenu<String>(
+        width: 45,
+        onSelected: (String? value) {
+          ref.read(cronExpressionProvider.notifier).setCronExpression(value!);
+        },
+        dropdownMenuEntries: dropDownEntries);
   }
 }
