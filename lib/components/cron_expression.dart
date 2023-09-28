@@ -28,7 +28,7 @@ class _CronExpressionDisplayState extends ConsumerState<CronExpressionDisplay> {
       createMainCronExpressionLabel('${state.cronExpression}', 20.0),
       const SizedBox(width: 10),
       Container(
-          width: 45,
+          width: 60,
           child: Column(
             children: [
               IconButton(
